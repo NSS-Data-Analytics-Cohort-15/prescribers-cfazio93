@@ -127,7 +127,7 @@ WHERE prescription.total_claim_count >= 3000;
 
 --7.a. First, create a list of all npi/drug_name combinations for pain management specialists (specialty_description = 'Pain Management) in the city of Nashville (nppes_provider_city = 'NASHVILLE'), where the drug is an opioid (opiod_drug_flag = 'Y'). Warning: Double-check your query before running it. You will only need to use the prescriber and drug tables since you don't need the claims numbers yet.
 
-SELECT prescriber.specialty_description, drug.drug_name
+SELECT prescriber.specialty_description, drug.drug_name, drug.opioid_drug_flag
 FROM prescriber
 JOIN prescription
 USING (npi)
@@ -139,12 +139,28 @@ AND prescriber.nppes_provider_city ILIKE 'NASHVILLE';
 
 --7.b. Next, report the number of claims per drug per prescriber. Be sure to include all combinations, whether or not the prescriber had any claims. You should report the npi, the drug name, and the number of claims (total_claim_count).
 
-SELECT prescriber.specialty_description, drug.drug_name, prescription.total_claim_count, prescription.npi
+SELECT  
+	prescriber.npi,
+	prescription.drug_name,
+	prescription.total_claim_count
 FROM prescriber
-CROSS JOIN prescription
 CROSS JOIN drug
+LEFT JOIN prescription
+USING  (drug_name, npi)
 WHERE prescriber.specialty_description = 'Pain Management'
 AND prescriber.nppes_provider_city ILIKE 'NASHVILLE'
-GROUP BY ;
+AND drug.opioid_drug_flag = 'Y';
 
 --7.c. Finally, if you have not done so already, fill in any missing values for total_claim_count with 0. Hint - Google the COALESCE function.
+
+SELECT  
+	prescriber.npi,
+	prescription.drug_name,
+	COALESCE(prescription.total_claim_count, 0)
+FROM prescriber
+CROSS JOIN drug
+LEFT JOIN prescription
+USING  (drug_name, npi)
+WHERE prescriber.specialty_description = 'Pain Management'
+AND prescriber.nppes_provider_city ILIKE 'NASHVILLE'
+AND drug.opioid_drug_flag = 'Y';
