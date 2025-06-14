@@ -156,7 +156,7 @@ AND drug.opioid_drug_flag = 'Y';
 SELECT  
 	prescriber.npi,
 	prescription.drug_name,
-	COALESCE(prescription.total_claim_count, 0)
+	COALESCE(prescription.total_claim_count, 0) AS total_claims
 FROM prescriber
 CROSS JOIN drug
 LEFT JOIN prescription
